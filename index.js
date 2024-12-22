@@ -1,12 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const { sequelize } = require('./lib/index');
-const { Op } = require('@sequelize/core');
-const { employee } = require('./models/employee.model');
-const { department } = require('./models/department.model');
-const { role } = require('./models/role.model');
-const { employeeDepartment } = require('./models/employeeDepartment.model');
-const { employeeRole } = require('./models/employeeRole.model');
+const express = require("express");
+const cors = require("cors");
+const { sequelize } = require("./lib/index");
+const { Op } = require("@sequelize/core");
+const { employee } = require("./models/employee.model");
+const { department } = require("./models/department.model");
+const { role } = require("./models/role.model");
+const { employeeDepartment } = require("./models/employeeDepartment.model");
+const { employeeRole } = require("./models/employeeRole.model");
 
 const app = express();
 
@@ -14,24 +14,24 @@ app.use(cors());
 app.use(express.json());
 
 // Endpoint to seed database
-app.get('/seed_db', async (req, res) => {
+app.get("/seed_db", async (req, res) => {
   await sequelize.sync({ force: true });
 
   const departments = await department.bulkCreate([
-    { name: 'Engineering' },
-    { name: 'Marketing' },
+    { name: "Engineering" },
+    { name: "Marketing" },
   ]);
 
   const roles = await role.bulkCreate([
-    { title: 'Software Engineer' },
-    { title: 'Marketing Specialist' },
-    { title: 'Product Manager' },
+    { title: "Software Engineer" },
+    { title: "Marketing Specialist" },
+    { title: "Product Manager" },
   ]);
 
   const employees = await employee.bulkCreate([
-    { name: 'Rahul Sharma', email: 'rahul.sharma@example.com' },
-    { name: 'Priya Singh', email: 'priya.singh@example.com' },
-    { name: 'Ankit Verma', email: 'ankit.verma@example.com' },
+    { name: "Rahul Sharma", email: "rahul.sharma@example.com" },
+    { name: "Priya Singh", email: "priya.singh@example.com" },
+    { name: "Ankit Verma", email: "ankit.verma@example.com" },
   ]);
 
   // Associate employees with departments and roles using create method on junction models
@@ -62,7 +62,7 @@ app.get('/seed_db', async (req, res) => {
     roleId: roles[2].id,
   });
 
-  return res.json({ message: 'Database seeded!' });
+  return res.json({ message: "Database seeded!" });
 });
 
 // Helper function to get employee's associated departments
@@ -73,7 +73,7 @@ async function getEmployeeDepartments(employeeId) {
   });
 
   const departmentIds = employeeDepartments.map(
-    (employeeDepartment) => employeeDepartment.departmentId
+    (employeeDepartment) => employeeDepartment.departmentId,
   );
 
   const departments = await department.findAll({
@@ -121,11 +121,11 @@ async function fetchAllEmployees() {
   return { employees: employeesWithDepartmentAndRoleInfo };
 }
 
-app.get('/employees', async (req, res) => {
+app.get("/employees", async (req, res) => {
   try {
     const response = await fetchAllEmployees();
     if (response.employees.length === 0) {
-      res.status(404).json({ message: 'No employees found' });
+      res.status(404).json({ message: "No employees found" });
     } else {
       res.status(200).json(response);
     }
@@ -141,12 +141,12 @@ async function fetchEmployeeWithId(empId) {
   return { employee: employeeDetails };
 }
 
-app.get('/employees/details/:id', async (req, res) => {
+app.get("/employees/details/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const response = await fetchEmployeeWithId(id);
     if (!response.employee) {
-      res.status(404).json({ message: 'Employee not found' });
+      res.status(404).json({ message: "Employee not found" });
     } else {
       res.status(200).json(response);
     }
@@ -167,21 +167,20 @@ async function fetchEmployeesByDepartmentId(departmentId) {
       where: { id: employeeDepartment.employeeId },
       raw: true,
     });
-    const employeeWithDepartmentAndRoleDetails = await getEmployeeDetails(
-      employeeData
-    );
+    const employeeWithDepartmentAndRoleDetails =
+      await getEmployeeDetails(employeeData);
     employees.push(employeeWithDepartmentAndRoleDetails);
   }
 
   return { employees };
 }
 
-app.get('/employees/department/:departmentId', async (req, res) => {
+app.get("/employees/department/:departmentId", async (req, res) => {
   try {
     const departmentId = req.params.departmentId;
     const response = await fetchEmployeesByDepartmentId(departmentId);
     if (response.employees.length === 0) {
-      res.status(404).json({ message: 'Employees not found' });
+      res.status(404).json({ message: "Employees not found" });
     } else {
       res.status(200).json(response);
     }
@@ -202,21 +201,20 @@ async function fetchEmployeesByRoleId(roleId) {
       where: { id: employeeRole.employeeId },
       raw: true,
     });
-    const employeeWithDepartmentAndRoleDetails = await getEmployeeDetails(
-      employeeData
-    );
+    const employeeWithDepartmentAndRoleDetails =
+      await getEmployeeDetails(employeeData);
     employees.push(employeeWithDepartmentAndRoleDetails);
   }
 
   return { employees };
 }
 
-app.get('/employees/role/:roleId', async (req, res) => {
+app.get("/employees/role/:roleId", async (req, res) => {
   try {
     const roleId = req.params.roleId;
     const response = await fetchEmployeesByRoleId(roleId);
     if (response.employees.length === 0) {
-      res.status(404).json({ message: 'Employees not found' });
+      res.status(404).json({ message: "Employees not found" });
     } else {
       res.status(200).json(response);
     }
@@ -227,7 +225,7 @@ app.get('/employees/role/:roleId', async (req, res) => {
 
 async function fetchAllEmployeesSortedByName(order) {
   const employees = await employee.findAll({
-    order: [['name', order]],
+    order: [["name", order]],
     raw: true,
   });
   const employeesWithDepartmentAndRoleInfo = [];
@@ -239,12 +237,12 @@ async function fetchAllEmployeesSortedByName(order) {
   return { employees: employeesWithDepartmentAndRoleInfo };
 }
 
-app.get('/employees/sort-by-name', async (req, res) => {
+app.get("/employees/sort-by-name", async (req, res) => {
   try {
     const order = req.query.order;
     const response = await fetchAllEmployeesSortedByName(order);
     if (response.employees.length === 0) {
-      res.status(404).json({ message: 'No employees found' });
+      res.status(404).json({ message: "No employees found" });
     } else {
       res.status(200).json(response);
     }
@@ -254,13 +252,11 @@ app.get('/employees/sort-by-name', async (req, res) => {
 });
 
 async function addNewEmployee(newEmployee) {
-  const emp = await employee.create(
-    {
-      name: newEmployee.name,
-      email: newEmployee.email,
-    },
-    { raw: true }
-  );
+  const emp = await employee.create({
+    name: newEmployee.name,
+    email: newEmployee.email,
+  });
+
   await employeeDepartment.create({
     employeeId: emp.id,
     departmentId: newEmployee.departmentId,
@@ -269,11 +265,11 @@ async function addNewEmployee(newEmployee) {
     employeeId: emp.id,
     roleId: newEmployee.roleId,
   });
-  const employeeDetails = await getEmployeeDetails(employee);
+  const employeeDetails = await getEmployeeDetails(emp.get());
   return employeeDetails;
 }
 
-app.get('/employees/new', async (req, res) => {
+app.post("/employees/new", async (req, res) => {
   try {
     const newEmployee = req.body;
     const response = await addNewEmployee(newEmployee);
@@ -284,6 +280,95 @@ app.get('/employees/new', async (req, res) => {
   }
 });
 
+async function updateEmployeeData(employeeData, empId) {
+  const emp = await employee.findOne({ where: { id: empId } });
+  if (!emp) {
+    return {};
+  }
+  const newEmployeeData = {};
+  if (employeeData.name) {
+    newEmployeeData.name = employeeData.name;
+  }
+  if (employeeData.email) {
+    newEmployeeData.email = employeeData.email;
+  }
+  if (Object.keys(newEmployeeData).length > 0) {
+    emp.set(newEmployeeData);
+    await emp.save();
+  }
+  if (employeeData.departmentId) {
+    await employeeDepartment.destroy({
+      where: {
+        employeeId: empId,
+      },
+    });
+    await employeeDepartment.create({
+      employeeId: empId,
+      departmentId: employeeData.departmentId,
+    });
+  }
+  if (employeeData.roleId) {
+    await employeeRole.destroy({
+      where: {
+        employeeId: empId,
+      },
+    });
+    await employeeRole.create({
+      employeeId: empId,
+      roleId: employeeData.roleId,
+    });
+  }
+  const employeeDetails = await getEmployeeDetails(emp.get());
+  return employeeDetails;
+}
+
+app.patch("/employees/update/:id", async (req, res) => {
+  try {
+    const empId = parseInt(req.params.id);
+    const employeeData = req.body;
+    const response = await updateEmployeeData(employeeData, empId);
+
+    if (Object.keys(response).length == 0) {
+      res.status(404).json({ message: "Employee not found with the given id" });
+    } else {
+      res.status(200).json(response);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+async function deleteEmployeeData(empId) {
+  await employee.destroy({
+    where: {
+      id: empId,
+    },
+  });
+  await employeeDepartment.destroy({
+    where: {
+      employeeId: empId,
+    },
+  });
+  await employeeRole.destroy({
+    where: {
+      employeeId: empId,
+    },
+  });
+}
+
+app.post("/employees/delete", async (req, res) => {
+  try {
+    const empId = parseInt(req.body.id);
+    await deleteEmployeeData(empId);
+
+    res
+      .status(200)
+      .json({ message: `Employee with ID ${empId} has been deleted.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+  console.log("Server is running on port 3000");
 });
